@@ -228,6 +228,7 @@ function App() {
           PEPR<span>.</span>
         </a>
         <nav
+          id="primary-navigation"
           className={mobileOpen ? "nav-links nav-links--open" : "nav-links"}
           aria-label="Primary navigation"
         >
@@ -266,6 +267,8 @@ function App() {
             type="button"
             className="icon-button menu-button"
             aria-label="Toggle navigation"
+            aria-controls="primary-navigation"
+            aria-expanded={mobileOpen}
             onClick={() => setMobileOpen((open) => !open)}
           >
             {mobileOpen ? <X size={22} /> : <Menu size={22} />}

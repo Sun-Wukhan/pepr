@@ -46,4 +46,18 @@ describe("PEPR storefront", () => {
     expect(within(cart).getByText("Subtotal")).toBeInTheDocument();
     expect(within(cart).getAllByText("$100")).toHaveLength(2);
   });
+
+  it("exposes the mobile navigation state to assistive technology", () => {
+    render(<App />);
+
+    const menuButton = screen.getByRole("button", {
+      name: "Toggle navigation",
+    });
+    expect(menuButton).toHaveAttribute("aria-expanded", "false");
+
+    fireEvent.click(menuButton);
+
+    expect(menuButton).toHaveAttribute("aria-expanded", "true");
+    expect(menuButton).toHaveAttribute("aria-controls", "primary-navigation");
+  });
 });
