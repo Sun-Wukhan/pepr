@@ -1068,6 +1068,207 @@ footer {
   padding: 17px;
   width: 100%;
 }
+
+.guide-nav {
+  display: flex;
+  justify-content: space-between;
+}
+.guide-back {
+  align-items: center;
+  color: #263a33;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 700;
+  gap: 9px;
+  text-decoration: none;
+}
+.guide-back svg {
+  transform: rotate(180deg);
+}
+.guide-hero {
+  align-items: end;
+  background: #f3f5ed;
+  display: grid;
+  gap: 9vw;
+  grid-template-columns: 1fr 0.8fr;
+  min-height: 500px;
+  padding: 95px 8vw 85px;
+}
+.guide-hero h1 {
+  color: #172b24;
+  font-family: var(--serif);
+  font-size: clamp(58px, 6.2vw, 90px);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 0.94;
+  margin: 0;
+}
+.guide-hero h1 em {
+  color: #789c3b;
+  font-weight: 400;
+}
+.guide-intro > p {
+  color: #66756e;
+  font-size: 15px;
+  line-height: 1.75;
+  margin: 0 0 30px;
+  max-width: 530px;
+}
+.guide-warning {
+  align-items: flex-start;
+  background: #e5ecd6;
+  border-left: 3px solid #86aa43;
+  color: #263b33;
+  display: flex;
+  gap: 15px;
+  padding: 18px;
+}
+.guide-warning svg {
+  flex: 0 0 auto;
+}
+.guide-warning span {
+  color: #68766f;
+  display: flex;
+  flex-direction: column;
+  font-size: 11px;
+  line-height: 1.55;
+}
+.guide-warning strong {
+  color: #21372f;
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+.application-principles {
+  background: #183028;
+  color: white;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 0 7vw;
+}
+.application-principles article {
+  border-right: 1px solid #31483f;
+  padding: 52px 42px;
+}
+.application-principles article:first-child {
+  border-left: 1px solid #31483f;
+}
+.application-principles span {
+  color: #9cc259;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+.application-principles h2 {
+  color: white;
+  font-family: var(--serif);
+  font-size: 25px;
+  font-weight: 500;
+  margin: 30px 0 12px;
+}
+.application-principles p {
+  color: #9caca6;
+  font-size: 11px;
+  line-height: 1.7;
+  margin: 0;
+}
+.guide-catalog {
+  background: #fbfcf8;
+  padding: 110px 7vw;
+}
+.guide-list {
+  border-top: 1px solid #dce2da;
+  margin: 0 auto;
+  max-width: 1320px;
+}
+.guide-entry {
+  align-items: start;
+  border-bottom: 1px solid #dce2da;
+  display: grid;
+  gap: 28px;
+  grid-template-columns: 45px 0.7fr 1.15fr 0.9fr;
+  padding: 35px 0;
+}
+.guide-entry-number {
+  color: #91a088;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  padding-top: 7px;
+}
+.guide-entry-title h3 {
+  color: #1b322a;
+  font-family: var(--serif);
+  font-size: 25px;
+  font-weight: 600;
+  line-height: 1.05;
+  margin: 0 0 5px;
+}
+.guide-entry-title span {
+  color: #7d9f3d;
+  display: inline-block;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  margin-top: 8px;
+  text-transform: uppercase;
+}
+.guide-entry > p {
+  color: #718078;
+  font-size: 12px;
+  line-height: 1.75;
+  margin: 0;
+}
+.guide-context {
+  align-items: flex-start;
+  background: #f0f3ea;
+  color: #637269;
+  display: flex;
+  font-size: 10px;
+  gap: 10px;
+  line-height: 1.55;
+  padding: 14px;
+}
+.guide-context svg {
+  color: #7fa23f;
+  flex: 0 0 auto;
+}
+.guide-clinician {
+  align-items: center;
+  background: #e8eedb;
+  display: grid;
+  gap: 40px;
+  grid-template-columns: auto 1fr auto;
+  padding: 75px 10vw;
+}
+.guide-clinician > svg {
+  color: #7d9e41;
+}
+.guide-clinician .eyebrow {
+  margin-bottom: 10px;
+}
+.guide-clinician h2 {
+  color: #1b332a;
+  font-family: var(--serif);
+  font-size: 39px;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  margin: 0;
+}
+.guide-clinician div > p:last-child {
+  color: #6d7b74;
+  font-size: 11px;
+  line-height: 1.65;
+  margin: 14px 0 0;
+  max-width: 600px;
+}
+.guide-footer {
+  padding-top: 0;
+}
+.guide-footer a {
+  color: white;
+  font-size: 10px;
+  text-decoration: none;
+}
 .sr-only {
   clip: rect(0, 0, 0, 0);
   clip-path: inset(50%);
@@ -1389,6 +1590,71 @@ footer {
   }
   .cart-footer > button {
     min-height: 52px;
+  }
+  .guide-nav {
+    display: flex;
+  }
+  .guide-back {
+    min-height: 44px;
+  }
+  .guide-hero {
+    align-items: start;
+    gap: 38px;
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding: 62px 20px 55px;
+  }
+  .guide-hero h1 {
+    font-size: clamp(48px, 14vw, 64px);
+  }
+  .guide-intro > p {
+    font-size: 14px;
+  }
+  .application-principles {
+    grid-template-columns: 1fr;
+    padding: 0 20px;
+  }
+  .application-principles article,
+  .application-principles article:first-child {
+    border-bottom: 1px solid #31483f;
+    border-left: 0;
+    border-right: 0;
+    padding: 34px 4px;
+  }
+  .application-principles article:last-child {
+    border-bottom: 0;
+  }
+  .application-principles h2 {
+    margin-top: 17px;
+  }
+  .guide-catalog {
+    padding: 75px 20px;
+  }
+  .guide-entry {
+    gap: 14px;
+    grid-template-columns: 30px 1fr;
+    padding: 28px 0;
+  }
+  .guide-entry-title {
+    padding-bottom: 5px;
+  }
+  .guide-entry > p,
+  .guide-context {
+    grid-column: 2;
+  }
+  .guide-entry > p {
+    font-size: 11px;
+  }
+  .guide-clinician {
+    gap: 22px;
+    grid-template-columns: 1fr;
+    padding: 65px 22px;
+  }
+  .guide-clinician h2 {
+    font-size: 36px;
+  }
+  .guide-clinician .primary-button {
+    width: 100%;
   }
 }
 

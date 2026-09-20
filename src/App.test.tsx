@@ -9,7 +9,10 @@ import {
 import { afterEach, describe, expect, it } from "vitest";
 import App from "./App";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  window.history.replaceState({}, "", "/");
+});
 
 describe("PEPR storefront", () => {
   it("renders the complete product catalog", () => {
@@ -59,5 +62,24 @@ describe("PEPR storefront", () => {
 
     expect(menuButton).toHaveAttribute("aria-expanded", "true");
     expect(menuButton).toHaveAttribute("aria-controls", "primary-navigation");
+  });
+
+  it("renders research-only application guidance for every product group", () => {
+    window.history.replaceState({}, "", "/?page=guide");
+
+    render(<App />);
+
+    expect(
+      screen.getByRole("heading", { name: "Understanding application" }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole("article")).toHaveLength(11);
+    expect(
+      screen.getByText("Do not inject, ingest, inhale, or apply", {
+        exact: false,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "GHK-Cu 100mg" }),
+    ).toBeInTheDocument();
   });
 });
