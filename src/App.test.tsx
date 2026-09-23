@@ -50,6 +50,37 @@ describe("PEPR storefront", () => {
     expect(within(cart).getAllByText("$100")).toHaveLength(2);
   });
 
+  it("starts a verified research request checkout", () => {
+    render(<App />);
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Add Tesamorelin 10mg to cart" }),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Continue to checkout" }),
+    );
+
+    const checkout = screen.getByRole("dialog");
+    expect(checkout).toBeInTheDocument();
+    fireEvent.change(within(checkout).getByLabelText("Email address"), {
+      target: { value: "RESEARCHER@EXAMPLE.CA" },
+    });
+    fireEvent.click(
+      within(checkout).getByRole("checkbox", {
+        name: /qualified research purposes/i,
+      }),
+    );
+    fireEvent.click(
+      within(checkout).getByRole("button", {
+        name: "Continue to shipping address",
+      }),
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "Shipping address" }),
+    ).toBeInTheDocument();
+  });
+
   it("exposes the mobile navigation state to assistive technology", () => {
     render(<App />);
 

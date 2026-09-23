@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import "./App.css";
+import CheckoutFlow from "./CheckoutFlow";
 
 type Category = "All" | "Peptides" | "Blends" | "Longevity";
 
@@ -399,6 +400,7 @@ function App() {
   const [search, setSearch] = useState("");
   const [cart, setCart] = useState<Product[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const filteredProducts = useMemo(() => {
@@ -810,12 +812,21 @@ function App() {
               <strong>${total}</strong>
             </div>
             <p>Shipping and taxes calculated at checkout.</p>
-            <button type="button">
+            <button
+              type="button"
+              onClick={() => {
+                setCartOpen(false);
+                setCheckoutOpen(true);
+              }}
+            >
               Continue to checkout <ArrowRight size={18} />
             </button>
           </div>
         )}
       </aside>
+      {checkoutOpen && (
+        <CheckoutFlow items={cart} onClose={() => setCheckoutOpen(false)} />
+      )}
     </div>
   );
 }
