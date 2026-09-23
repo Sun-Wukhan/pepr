@@ -627,9 +627,8 @@ export default function CheckoutFlow({ items, onClose }: CheckoutFlowProps) {
                 <ShieldCheck size={21} />
                 <span>
                   <strong>No payment is due.</strong>
-                  This static preview does not transmit your information. A
-                  secure backend and compliance review must be connected before
-                  real requests can be accepted.
+                  Please make your e-transfer to the following email address: blueglobal2@gmail.com
+                  with your confirmation number as the reference. Thank you.
                 </span>
               </div>
               <button
