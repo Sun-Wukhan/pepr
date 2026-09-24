@@ -12,14 +12,20 @@ import {
   X,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import ThemeToggle from "./ThemeToggle.tsx";
 import type { FormEvent } from "react";
+import { createOrderRequest } from "./orderClient.ts";
+import {
+  createRequestNumber,
+  formatCurrency,
+  priceShipping,
+  provinces,
+  sanitizeInput,
+  shippingOptions,
+  type OrderItem,
+} from "./orders.ts";
 
-export interface CheckoutItem {
-  id: number;
-  name: string;
-  dose: string;
-  price: number;
-}
+export type CheckoutItem = OrderItem;
 
 interface CheckoutFlowProps {
   items: CheckoutItem[];
@@ -37,69 +43,8 @@ interface Address {
   postalCode: string;
 }
 
-interface ShippingOption {
-  id: string;
-  name: string;
-  estimate: string;
-  price: number;
-}
-
 type CheckoutStep =
   "contact" | "address" | "shipping" | "review" | "confirmation";
-
-const shippingOptions: ShippingOption[] = [
-  {
-    id: "regular",
-    name: "Canada Post Regular Parcel",
-    estimate: "Estimated 5–8 business days",
-    price: 18,
-  },
-  {
-    id: "expedited",
-    name: "Canada Post Expedited Parcel",
-    estimate: "Estimated 2–4 business days",
-    price: 25,
-  },
-  {
-    id: "xpresspost",
-    name: "Canada Post Xpresspost",
-    estimate: "Estimated 1–2 business days",
-    price: 35,
-  },
-];
-
-const provinces = [
-  "Alberta",
-  "British Columbia",
-  "Manitoba",
-  "New Brunswick",
-  "Newfoundland and Labrador",
-  "Nova Scotia",
-  "Ontario",
-  "Prince Edward Island",
-  "Quebec",
-  "Saskatchewan",
-];
-
-/** Removes markup characters and limits user-entered text length. */
-function sanitizeInput(value: string, maxLength = 120): string {
-  return value.replace(/[<>]/g, "").slice(0, maxLength);
-}
-
-/** Creates a human-readable reference for a local order request. */
-function createRequestNumber(): string {
-  const timePart = Date.now().toString(36).toUpperCase().slice(-6);
-  const randomPart = Math.random().toString(36).toUpperCase().slice(2, 6);
-  return `PEPR-${timePart}-${randomPart}`;
-}
-
-/** Formats a monetary amount in Canadian dollars. */
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("en-CA", {
-    style: "currency",
-    currency: "CAD",
-  }).format(value);
-}
 
 /** Renders the research-order request and shipping workflow. */
 export default function CheckoutFlow({ items, onClose }: CheckoutFlowProps) {
@@ -109,6 +54,8 @@ export default function CheckoutFlow({ items, onClose }: CheckoutFlowProps) {
   const [reviewConfirmed, setReviewConfirmed] = useState(false);
   const [shippingId, setShippingId] = useState("expedited");
   const [requestNumber, setRequestNumber] = useState("");
+  const [recorded, setRecorded] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [address, setAddress] = useState<Address>({
     fullName: "",
@@ -125,13 +72,7 @@ export default function CheckoutFlow({ items, onClose }: CheckoutFlowProps) {
     () => items.reduce((sum, item) => sum + item.price, 0),
     [items],
   );
-  const selectedShipping =
-    shippingOptions.find((option) => option.id === shippingId) ??
-    shippingOptions[0];
-  const shippingPrice =
-    subtotal >= 250 && shippingId === "regular" ? 0 : selectedShipping.price;
-  const estimatedTax = (subtotal + shippingPrice) * 0.05;
-  const estimatedTotal = subtotal + shippingPrice + estimatedTax;
+  const priced = priceShipping(subtotal, shippingId);
 
   /** Updates one sanitized shipping-address field. */
   const updateAddress = (field: keyof Address, value: string): void => {
@@ -168,11 +109,34 @@ export default function CheckoutFlow({ items, onClose }: CheckoutFlowProps) {
     setStep("review");
   };
 
-  /** Creates a pending local request reference without collecting payment. */
-  const submitRequest = (event: FormEvent<HTMLFormElement>): void => {
+  /** Saves the checkout request and shows the reference number returned for it. */
+  const submitRequest = async (
+    event: FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     event.preventDefault();
-    setRequestNumber(createRequestNumber());
-    setStep("confirmation");
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      const referenceNumber = await createOrderRequest({
+        email: sanitizeInput(email, 160).trim().toLowerCase(),
+        items: items.map((item) => ({
+          id: item.id,
+          name: item.name,
+          dose: item.dose,
+          price: item.price,
+        })),
+        address,
+        shippingId,
+      });
+      setRequestNumber(referenceNumber);
+      setRecorded(true);
+    } catch {
+      setRequestNumber(createRequestNumber());
+      setRecorded(false);
+    } finally {
+      setSubmitting(false);
+      setStep("confirmation");
+    }
   };
 
   /** Copies the request reference when the browser permits clipboard access. */
@@ -200,14 +164,17 @@ export default function CheckoutFlow({ items, onClose }: CheckoutFlowProps) {
           <ShieldCheck size={17} />
           Research request
         </div>
-        <button
-          type="button"
-          className="icon-button"
-          onClick={onClose}
-          aria-label="Close checkout"
-        >
-          <X size={21} />
-        </button>
+        <div className="checkout-header-actions">
+          <ThemeToggle />
+          <button
+            type="button"
+            className="icon-button"
+            onClick={onClose}
+            aria-label="Close checkout"
+          >
+            <X size={21} />
+          </button>
+        </div>
       </header>
 
       <div className="checkout-layout">
@@ -238,18 +205,18 @@ export default function CheckoutFlow({ items, onClose }: CheckoutFlowProps) {
                 <div>
                   <span>Estimated shipping</span>
                   <strong>
-                    {shippingPrice === 0
+                    {priced.shippingPrice === 0
                       ? "Free"
-                      : formatCurrency(shippingPrice)}
+                      : formatCurrency(priced.shippingPrice)}
                   </strong>
                 </div>
                 <div>
                   <span>Estimated GST</span>
-                  <strong>{formatCurrency(estimatedTax)}</strong>
+                  <strong>{formatCurrency(priced.estimatedTax)}</strong>
                 </div>
                 <div className="checkout-total">
                   <span>Estimated total</span>
-                  <strong>{formatCurrency(estimatedTotal)}</strong>
+                  <strong>{formatCurrency(priced.estimatedTotal)}</strong>
                 </div>
               </>
             )}
@@ -487,10 +454,10 @@ export default function CheckoutFlow({ items, onClose }: CheckoutFlowProps) {
                 <fieldset className="shipping-options">
                   <legend className="sr-only">Canada Post service</legend>
                   {shippingOptions.map((option) => {
-                    const price =
-                      subtotal >= 250 && option.id === "regular"
-                        ? 0
-                        : option.price;
+                    const price = priceShipping(
+                      subtotal,
+                      option.id,
+                    ).shippingPrice;
                     return (
                       <label
                         className={
@@ -570,8 +537,8 @@ export default function CheckoutFlow({ items, onClose }: CheckoutFlowProps) {
                 </div>
                 <div>
                   <span>Delivery</span>
-                  <strong>{selectedShipping.name}</strong>
-                  <p>{selectedShipping.estimate}</p>
+                  <strong>{priced.shippingName}</strong>
+                  <p>{priced.shippingEstimate}</p>
                   <button type="button" onClick={() => setStep("shipping")}>
                     Change
                   </button>
@@ -595,9 +562,15 @@ export default function CheckoutFlow({ items, onClose }: CheckoutFlowProps) {
                 <button
                   className="checkout-primary"
                   type="submit"
-                  disabled={!reviewConfirmed}
+                  disabled={!reviewConfirmed || submitting}
                 >
-                  Create order request <ArrowRight size={17} />
+                  {submitting ? (
+                    "Creating order request…"
+                  ) : (
+                    <>
+                      Create order request <ArrowRight size={17} />
+                    </>
+                  )}
                 </button>
               </form>
             </section>
@@ -609,7 +582,7 @@ export default function CheckoutFlow({ items, onClose }: CheckoutFlowProps) {
                 <Check size={34} />
               </div>
               <p className="eyebrow">Request created</p>
-              <h1>Your reference is ready.</h1>
+              <h2>Your reference is ready.</h2>
               <p>
                 Keep this number for all future correspondence. If the request
                 is approved after eligibility review, any next steps will
@@ -623,14 +596,21 @@ export default function CheckoutFlow({ items, onClose }: CheckoutFlowProps) {
                   {copied ? "Copied" : "Copy"}
                 </button>
               </div>
-              <div className="confirmation-notice">
-                <ShieldCheck size={21} />
-                <span>
-                  <strong>No payment is due.</strong>
-                  Please make your e-transfer to the following email address: blueglobal2@gmail.com
-                  with your confirmation number as the reference. Thank you.
-                </span>
-              </div>
+              {!recorded && (
+                <div className="confirmation-notice">
+                  <ShieldCheck size={21} />
+                  <span>
+                    This reference was created in the browser because the order
+                    endpoint was unavailable. It will not appear on the admin
+                    page.
+                  </span>
+                </div>
+              )}
+              <h1 className="payment-heading">
+                No payment is due. Please make your e-transfer to the following
+                email address: blueglobal2@gmail.com with your confirmation
+                number as the reference. Thank you.
+              </h1>
               <button
                 className="checkout-primary"
                 type="button"

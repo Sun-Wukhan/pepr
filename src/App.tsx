@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import "./App.css";
+import AdminPage from "./AdminPage.tsx";
+import ThemeToggle from "./ThemeToggle.tsx";
 import CheckoutFlow from "./CheckoutFlow";
 
 type Category = "All" | "Peptides" | "Blends" | "Longevity";
@@ -270,6 +272,7 @@ function GuidePage() {
         <a className="guide-back" href=".">
           <ArrowRight size={17} /> Back to storefront
         </a>
+        <ThemeToggle />
       </header>
 
       <main>
@@ -394,8 +397,7 @@ function GuidePage() {
 
 /** Displays the PEPR research product storefront. */
 function App() {
-  const isGuidePage =
-    new URLSearchParams(window.location.search).get("page") === "guide";
+  const page = new URLSearchParams(window.location.search).get("page");
   const [activeCategory, setActiveCategory] = useState<Category>("All");
   const [search, setSearch] = useState("");
   const [cart, setCart] = useState<Product[]>([]);
@@ -432,12 +434,16 @@ function App() {
     );
   };
 
-  if (isGuidePage) {
+  if (page === "guide") {
     return <GuidePage />;
   }
 
+  if (page === "admin") {
+    return <AdminPage />;
+  }
+
   return (
-    <div className="site-shell">
+    <div className="site-shell storefront">
       <div className="announcement">
         <span>Complimentary cold-pack shipping on orders $250+</span>
         <span className="announcement-secondary">
@@ -468,6 +474,7 @@ function App() {
           </a>
         </nav>
         <div className="nav-actions">
+          <ThemeToggle />
           <button
             type="button"
             className="icon-button search-top"

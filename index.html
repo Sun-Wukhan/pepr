@@ -1,5 +1,17 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
+  <script>
+    try {
+      var saved = localStorage.getItem("pepr-theme");
+      var theme =
+        saved === "light" || saved === "dark"
+          ? saved
+          : matchMedia("(prefers-color-scheme: light)").matches
+            ? "light"
+            : "dark";
+      document.documentElement.dataset.theme = theme;
+    } catch (error) {}
+  </script>
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />

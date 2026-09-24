@@ -95,6 +95,18 @@ describe("PEPR storefront", () => {
     expect(menuButton).toHaveAttribute("aria-controls", "primary-navigation");
   });
 
+  it("opens the admin order queue", () => {
+    window.history.replaceState({}, "", "/?page=admin");
+
+    render(<App />);
+
+    expect(
+      screen.getByRole("heading", { name: "Order requests" }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Username")).toBeInTheDocument();
+    expect(screen.getByLabelText("Password")).toBeInTheDocument();
+  });
+
   it("renders research-only application guidance for every product group", () => {
     window.history.replaceState({}, "", "/?page=guide");
 
